@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+exam_system.db
+uploads/*
+!uploads/.gitkeep
+generated_papers/*
+!generated_papers/.gitkeep
+*.egg-info/
+dist/
+build/
+.env
