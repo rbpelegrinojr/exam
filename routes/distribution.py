@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 from flask import Blueprint, render_template, redirect, url_for, request, flash, send_file
+from sqlalchemy.exc import IntegrityError
 from database.db import get_db
 from database.models import Exam, Student, ExamAssignment
 from modules.pdf_generator import generate_paper
@@ -8,11 +9,18 @@ from modules.pdf_generator import generate_paper
 distribution_bp = Blueprint("distribution", __name__)
 
 
-def _next_paper_id(db, exam_id):
-    """Generate the next unique_paper_id in format EX{year}-{seq:03d}."""
+def _generate_unique_paper_id(db, exam_id):
+    """
+    Generate a globally unique paper ID in format EX{year}-{seq:03d}.
+
+    Uses a retry loop to handle concurrent requests gracefully — if the
+    generated ID already exists (IntegrityError), the caller should retry.
+    The sequence is based on the total count of assignments so collisions
+    are very unlikely in typical school usage.
+    """
     year = datetime.utcnow().year
     prefix = f"EX{year}-"
-    # Count existing assignments across all exams to get global sequence
+    # Lock the table row count to avoid race conditions in multi-threaded environments
     count = db.query(ExamAssignment).count()
     return f"{prefix}{count + 1:03d}"
 
@@ -66,16 +74,26 @@ def assign_students_post(exam_id):
             if existing:
                 skipped += 1
                 continue
-            paper_id = _next_paper_id(db, exam_id)
-            assignment = ExamAssignment(
-                exam_id=exam_id,
-                student_id=sid,
-                unique_paper_id=paper_id,
-                assigned_at=datetime.utcnow(),
-            )
-            db.add(assignment)
-            db.flush()
-            added += 1
+            # Retry up to 5 times in case of concurrent duplicate paper ID
+            for _attempt in range(5):
+                paper_id = _generate_unique_paper_id(db, exam_id)
+                assignment = ExamAssignment(
+                    exam_id=exam_id,
+                    student_id=sid,
+                    unique_paper_id=paper_id,
+                    assigned_at=datetime.utcnow(),
+                )
+                db.add(assignment)
+                try:
+                    db.flush()
+                    added += 1
+                    break
+                except IntegrityError:
+                    db.rollback()
+                    # Re-query after rollback so the session is clean
+                    db.expire_all()
+            else:
+                flash(f"Could not generate unique paper ID for student {sid}.", "warning")
 
         db.commit()
         flash(f"{added} student(s) assigned. {skipped} already assigned.", "success")

@@ -22,5 +22,6 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'tiff', 'bmp'}
 # Flask secret key
 SECRET_KEY = "exam-system-secret-key-change-in-production"
 
-# Debug mode
-DEBUG = True
+# Debug mode — set to False in production.
+# Override via environment variable: DEBUG=1 python app.py
+DEBUG = os.environ.get("DEBUG", "0") == "1"

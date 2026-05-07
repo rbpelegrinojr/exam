@@ -80,15 +80,17 @@ def scan_upload_post(exam_id):
                     .first()
                 )
 
-            # Fall back: attach to exam without a specific assignment (will be resolved during OMR)
             if not assignment:
-                # Use first unscanned assignment for this exam as a placeholder
-                for a in exam.assignments:
-                    assignment = a
-                    break
-
-            if not assignment:
+                # QR code could not be read or matched — skip this file and warn the user.
+                # Do NOT silently attach it to a random student's assignment.
+                os.remove(image_path)
                 errors += 1
+                flash(
+                    f"Could not identify paper from '{file.filename}': QR code unreadable or "
+                    "paper ID not found. Ensure the QR code is visible and the paper belongs "
+                    "to this exam.",
+                    "warning",
+                )
                 continue
 
             scan_result = ScanResult(
