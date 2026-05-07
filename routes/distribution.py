@@ -75,7 +75,7 @@ def assign_students_post(exam_id):
                 skipped += 1
                 continue
             # Retry up to 5 times in case of concurrent duplicate paper ID
-            for _attempt in range(5):
+            for _ in range(5):
                 paper_id = _generate_unique_paper_id(db, exam_id)
                 assignment = ExamAssignment(
                     exam_id=exam_id,

@@ -87,8 +87,18 @@ def scan_upload_post(exam_id):
                 errors += 1
                 flash(
                     f"Could not identify paper from '{file.filename}': QR code unreadable or "
-                    "paper ID not found. Ensure the QR code is visible and the paper belongs "
-                    "to this exam.",
+                    "paper ID not found. Ensure the QR code is visible and try re-scanning.",
+                    "warning",
+                )
+                continue
+
+            # Ensure the identified paper actually belongs to this exam
+            if assignment.exam_id != exam_id:
+                os.remove(image_path)
+                errors += 1
+                flash(
+                    f"Paper '{paper_id}' from '{file.filename}' belongs to a different exam. "
+                    "Please upload scans to the correct exam.",
                     "warning",
                 )
                 continue

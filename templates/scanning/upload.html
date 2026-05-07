@@ -118,8 +118,21 @@ function showProgress() {
 }
 function handleDrop(event) {
     event.preventDefault();
-    const files = event.dataTransfer.files;
-    document.getElementById('scan_images').files = files;
+    const droppedFiles = event.dataTransfer.files;
+    const input = document.getElementById('scan_images');
+    // Use DataTransfer to properly assign files to the input element
+    const dt = new DataTransfer();
+    for (let i = 0; i < droppedFiles.length; i++) {
+        dt.items.add(droppedFiles[i]);
+    }
+    input.files = dt.files;
+    // Update the label to reflect dropped files
+    const label = document.querySelector('#uploadArea p');
+    if (label) {
+        label.textContent = droppedFiles.length === 1
+            ? `Selected: ${droppedFiles[0].name}`
+            : `${droppedFiles.length} file(s) selected`;
+    }
 }
 </script>
 {% endblock %}
