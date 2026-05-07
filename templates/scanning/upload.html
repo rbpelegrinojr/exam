@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Upload Scans — {{ exam.title }}{% endblock %}
+{% block page_title %}Upload Scanned Papers{% endblock %}
+
+{% block content %}
+<div class="mt-3">
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <a href="{{ url_for('exams.exam_detail', exam_id=exam.id) }}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h5 class="mb-0 fw-semibold">Upload Scans: {{ exam.title }}</h5>
+    </div>
+
+    <!-- Upload form -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom">
+            <h6 class="mb-0 fw-semibold">Upload Scanned Images (OMR Processing)</h6>
+        </div>
+        <div class="card-body">
+            <form method="POST"
+                  action="{{ url_for('scanning.scan_upload_post', exam_id=exam.id) }}"
+                  enctype="multipart/form-data"
+                  id="uploadForm">
+                <div class="upload-area mb-3" id="uploadArea"
+                     ondragover="event.preventDefault()" ondrop="handleDrop(event)">
+                    <i class="bi bi-cloud-upload fs-1 text-muted d-block mb-2"></i>
+                    <p class="mb-1 text-muted">Drag &amp; drop scanned images here, or click to browse</p>
+                    <small class="text-muted">Supported: PNG, JPG, JPEG, TIFF, BMP — Max 16 MB each</small>
+                    <input type="file" class="form-control mt-3" id="scan_images" name="scan_images"
+                           accept=".png,.jpg,.jpeg,.tiff,.bmp" multiple>
+                </div>
+
+                <!-- Progress indicator (hidden until upload) -->
+                <div id="uploadProgress" class="d-none mb-3">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                             role="progressbar" style="width: 100%">Processing...</div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-warning" onclick="showProgress()">
+                        <i class="bi bi-upload me-1"></i> Upload &amp; Process
+                    </button>
+                    <a href="{{ url_for('exams.exam_detail', exam_id=exam.id) }}"
+                       class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Recent scan results -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+            <h6 class="mb-0 fw-semibold">Recent Scan Results</h6>
+        </div>
+        <div class="card-body p-0">
+            {% if recent_scans %}
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Paper ID</th>
+                        <th>Student</th>
+                        <th>Page</th>
+                        <th>File</th>
+                        <th>Status</th>
+                        <th>Scanned</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for item in recent_scans %}
+                    <tr>
+                        <td class="font-monospace small">{{ item.paper_id }}</td>
+                        <td>{{ item.student.full_name }}</td>
+                        <td>{{ item.scan.page_number }}</td>
+                        <td class="text-muted small">
+                            {{ item.scan.image_path.split('/')[-1] if item.scan.image_path else '—' }}
+                        </td>
+                        <td>
+                            {% if item.scan.processed %}
+                            <span class="badge bg-success">Processed</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted small">
+                            {{ item.scan.scanned_at.strftime('%b %d %H:%M') if item.scan.scanned_at else '—' }}
+                        </td>
+                        <td>
+                            <form method="POST"
+                                  action="{{ url_for('scanning.reprocess_scan', scan_id=item.scan.id) }}"
+                                  class="d-inline">
+                                <button class="btn btn-xs btn-outline-secondary btn-sm">
+                                    <i class="bi bi-arrow-clockwise"></i> Re-run
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                No scans uploaded yet.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showProgress() {
+    document.getElementById('uploadProgress').classList.remove('d-none');
+}
+function handleDrop(event) {
+    event.preventDefault();
+    const files = event.dataTransfer.files;
+    document.getElementById('scan_images').files = files;
+}
+</script>
+{% endblock %}

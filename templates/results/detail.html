@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Result Detail — {{ student.full_name }}{% endblock %}
+{% block page_title %}Student Result Detail{% endblock %}
+
+{% block content %}
+<div class="mt-3">
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <a href="{{ url_for('results.exam_results', exam_id=exam.id) }}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h5 class="mb-0 fw-semibold">{{ student.full_name }} — {{ exam.title }}</h5>
+    </div>
+
+    <!-- Student summary card -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="fw-semibold mb-3">Student Info</h6>
+                    <table class="table table-sm table-borderless mb-0">
+                        <tr><td class="text-muted">Name</td><td class="fw-medium">{{ student.full_name }}</td></tr>
+                        <tr><td class="text-muted">Number</td><td class="font-monospace">{{ student.student_number }}</td></tr>
+                        <tr><td class="text-muted">Section</td><td>{{ student.section }}</td></tr>
+                        <tr><td class="text-muted">Paper ID</td><td class="font-monospace">{{ assignment.unique_paper_id }}</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="fw-semibold mb-3">Score Summary</h6>
+                    {% if result %}
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="score-circle">
+                            <span class="score-big">{{ "%.1f"|format(result.total) }}</span>
+                            <span class="score-divider">/</span>
+                            <span class="score-max">{{ "%.0f"|format(result.max_possible) }}</span>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="progress" style="height: 12px;">
+                                {% set pct = (result.total / result.max_possible * 100) if result.max_possible > 0 else 0 %}
+                                <div class="progress-bar {% if pct >= 75 %}bg-success{% elif pct >= 50 %}bg-warning{% else %}bg-danger{% endif %}"
+                                     style="width: {{ pct }}%"></div>
+                            </div>
+                            <small class="text-muted">{{ "%.1f"|format(pct) }}%</small>
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        {% for b in result.breakdown %}
+                        <div class="col-auto">
+                            <div class="breakdown-badge">
+                                <div class="text-muted small">Part {{ b.group_number }}</div>
+                                <div class="fw-bold">{{ "%.1f"|format(b.earned) }}/{{ "%.0f"|format(b.max) }}</div>
+                                <div class="text-muted" style="font-size:0.7rem">{{ b.question_type.replace('_',' ').title() }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-muted">No scores recorded yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed question breakdown -->
+    {% for group_detail in detailed %}
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white border-bottom">
+            <h6 class="mb-0 fw-semibold">
+                Part {{ group_detail.group.group_number }} —
+                {{ group_detail.group.question_type.replace('_',' ').title() }}
+                <span class="text-muted">({{ group_detail.group.points_per_item }} pt each)</span>
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-sm table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Question</th>
+                        <th>Correct Answer</th>
+                        <th>Detected Answer</th>
+                        <th>Points</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for item in group_detail.questions %}
+                    <tr class="{% if item.is_ambiguous %}table-warning{% elif item.is_correct %}table-success{% elif item.score %}table-danger{% endif %}">
+                        <td>{{ item.question.question_number }}</td>
+                        <td class="small">{{ item.question.question_text or '—' }}</td>
+                        <td>
+                            {% if item.question.correct_answer %}
+                            <span class="answer-badge answer-correct">{{ item.question.correct_answer }}</span>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.score and item.score.detected_answer %}
+                            <span class="answer-badge {% if item.is_correct %}answer-correct{% else %}answer-wrong{% endif %}">
+                                {{ item.score.detected_answer }}
+                            </span>
+                            {% elif item.is_ambiguous %}
+                            <span class="badge bg-warning text-dark">Ambiguous</span>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.score %}
+                            {{ "%.1f"|format(item.score.points_awarded) }}
+                            {% if item.score.is_manual %}
+                            <span class="badge bg-info text-dark ms-1" title="Manually graded">M</span>
+                            {% endif %}
+                            {% else %}
+                            <span class="text-muted">0.0</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.is_ambiguous %}
+                            <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle"></i> Ambiguous</span>
+                            {% elif item.is_correct %}
+                            <span class="badge bg-success"><i class="bi bi-check-lg"></i> Correct</span>
+                            {% elif item.score %}
+                            <span class="badge bg-danger"><i class="bi bi-x-lg"></i> Wrong</span>
+                            {% else %}
+                            <span class="badge bg-secondary">No Data</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

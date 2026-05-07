@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Create Exam{% endblock %}
+{% block page_title %}Create New Exam{% endblock %}
+
+{% block content %}
+<div class="row mt-3">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-4">New Exam</h5>
+                <form method="POST" action="{{ url_for('exams.create_exam_post') }}">
+                    <div class="mb-3">
+                        <label for="title" class="form-label fw-medium">Exam Title <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="title" name="title"
+                               placeholder="e.g., Midterm Examination — CS101" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="description" class="form-label fw-medium">Description <span class="text-muted">(optional)</span></label>
+                        <textarea class="form-control" id="description" name="description"
+                                  rows="3" placeholder="Exam instructions or notes..."></textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-1"></i> Create Exam
+                        </button>
+                        <a href="{{ url_for('exams.list_exams') }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

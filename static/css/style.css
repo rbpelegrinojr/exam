@@ -1,0 +1,279 @@
+/* ============================================================
+   Exam Management System — Main Stylesheet
+   ============================================================ */
+
+:root {
+    --primary:       #4361ee;
+    --primary-dark:  #3451d1;
+    --success:       #2ec4b6;
+    --danger:        #e63946;
+    --warning:       #f4a261;
+    --info:          #4cc9f0;
+    --sidebar-bg:    #1e1e2e;
+    --sidebar-text:  #cdd6f4;
+    --sidebar-hover: #2d2d3f;
+    --sidebar-active:#4361ee;
+    --topbar-bg:     #ffffff;
+    --body-bg:       #f4f6fb;
+    --card-bg:       #ffffff;
+    --border:        #e9ecef;
+    --text-muted:    #6c757d;
+    --font-main:     'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Base */
+* { box-sizing: border-box; }
+body {
+    font-family: var(--font-main);
+    background: var(--body-bg);
+    margin: 0;
+    color: #212529;
+}
+
+/* ============================================================
+   Layout
+   ============================================================ */
+#wrapper { min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    flex-shrink: 0;
+    transition: width 0.2s ease;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.sidebar-brand {
+    color: #fff !important;
+    padding: 0.5rem 0;
+}
+
+.sidebar .nav-link {
+    color: var(--sidebar-text);
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 2px;
+    font-size: 0.9rem;
+    transition: background 0.15s, color 0.15s;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background: var(--sidebar-hover);
+    color: #fff;
+}
+
+.sidebar .nav-link.active {
+    background: var(--sidebar-active);
+    font-weight: 600;
+}
+
+.sidebar-footer {
+    padding-top: 1rem;
+    border-top: 1px solid #2d2d3f;
+    font-size: 0.75rem;
+}
+
+/* Page content */
+#page-content-wrapper {
+    min-width: 0;
+    background: var(--body-bg);
+}
+
+/* Topbar */
+.topbar {
+    background: var(--topbar-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+
+/* ============================================================
+   Cards
+   ============================================================ */
+.card {
+    border-radius: 12px;
+    background: var(--card-bg);
+}
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+    padding: 0.875rem 1.25rem;
+}
+
+/* Stat cards */
+.stat-card { border-radius: 12px; }
+.stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.stat-number {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.bg-primary-soft { background: #eef0fd; }
+.bg-success-soft { background: #eafaf9; }
+
+/* ============================================================
+   Tables
+   ============================================================ */
+.table { font-size: 0.9rem; }
+.table th { font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.table td { vertical-align: middle; }
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn { border-radius: 8px; font-size: 0.875rem; font-weight: 500; }
+.btn-primary { background: var(--primary); border-color: var(--primary); }
+.btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+.btn-xs { padding: 0.15rem 0.4rem; font-size: 0.75rem; }
+
+/* ============================================================
+   Forms
+   ============================================================ */
+.form-control, .form-select {
+    border-radius: 8px;
+    border-color: var(--border);
+    font-size: 0.875rem;
+}
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(67,97,238,.15);
+}
+.input-group-text.choice-label {
+    font-weight: 700;
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    min-width: 32px;
+    justify-content: center;
+}
+
+/* ============================================================
+   Question management
+   ============================================================ */
+.question-row { transition: background 0.1s; }
+.question-row:hover { background: #f8f9ff; }
+.q-number {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--primary);
+    display: inline-block;
+    min-width: 24px;
+}
+
+/* ============================================================
+   Answer badges
+   ============================================================ */
+.answer-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+.answer-correct { background: #d4edda; color: #155724; }
+.answer-wrong   { background: #f8d7da; color: #721c24; }
+
+/* ============================================================
+   Score display
+   ============================================================ */
+.score-circle {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+.score-big  { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
+.score-max  { font-size: 1.2rem; color: var(--text-muted); }
+.score-divider { font-size: 1.5rem; color: var(--text-muted); }
+
+.score-pill {
+    background: #eef0fd;
+    color: var(--primary);
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.breakdown-badge {
+    background: #f4f6fb;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 6px 12px;
+    text-align: center;
+    min-width: 80px;
+}
+
+/* ============================================================
+   Type badges
+   ============================================================ */
+.type-badge { font-size: 0.75rem; }
+.type-multiple_choice    { background: #4361ee !important; }
+.type-modified_true_false { background: #2ec4b6 !important; }
+.type-essay              { background: #f4a261 !important; }
+.type-coding             { background: #6c757d !important; }
+
+/* ============================================================
+   Student assignment
+   ============================================================ */
+.student-card {
+    transition: background 0.1s;
+    cursor: pointer;
+}
+.student-card:hover { background: #f0f2ff; }
+.student-card.assigned { background: #f0fff4; border-color: #d4edda !important; }
+
+/* ============================================================
+   Upload area
+   ============================================================ */
+.upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    transition: border-color 0.2s;
+    cursor: pointer;
+}
+.upload-area:hover { border-color: var(--primary); }
+
+/* ============================================================
+   Flash messages
+   ============================================================ */
+.alert { border-radius: 10px; font-size: 0.9rem; }
+
+/* ============================================================
+   Workflow steps
+   ============================================================ */
+.workflow-steps {
+    padding-left: 1.2rem;
+    margin: 0;
+}
+.workflow-steps li {
+    padding: 0.3rem 0;
+    font-size: 0.875rem;
+    color: #444;
+}
+.workflow-steps li::marker { color: var(--primary); font-weight: 700; }
+
+/* ============================================================
+   Sidebar toggle (collapsed)
+   ============================================================ */
+#wrapper.sidebar-collapsed .sidebar { width: 60px; overflow: hidden; }
+#wrapper.sidebar-collapsed .sidebar span,
+#wrapper.sidebar-collapsed .sidebar .sidebar-footer { display: none; }
+#wrapper.sidebar-collapsed .sidebar .nav-link { justify-content: center; padding: 0.6rem; }
